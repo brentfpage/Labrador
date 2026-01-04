@@ -1487,6 +1487,22 @@ void MainWindow::readSettingsFile(){
         qDebug() << "dt_userWantsToCalibrate" << dt_userWantsToCalibrate;
         dt_AlreadyAskedAboutCalibration = true;
     }
+
+
+//     QState *s1 = new QState();
+//     s1->assignProperty(&calibrationMessages,"text","You need to connect the board before calibrating it!");
+//     s1->assignProperty(&calibrationMessages,"standardButtons",QMessageBox::Ok);
+
+//     QState *calStage0 = new QState();
+//     s2->assignProperty(calibrationMessages,"standardButtons",QMessageBox::Ok|QMessageBox::Cancel);
+// 
+//     QState *s3 = new QState();
+//     s2->addTransition(calibrationMessages,&QMessageBox::buttonClicked,s3);
+//     s2->addTransition(&calibrationMessages,QMessageBox::buttonClicked(QMessageBox::Cancel),sfinal)
+//     auto continueTransition = new QEventTransition(calibrationMessages, qEvent:Type 
+
+
+
 }
 
 void MainWindow::reinitUsb(void){
@@ -1875,7 +1891,6 @@ void MainWindow::vertScaleEvent(bool enabled){
 
 void MainWindow::on_actionCalibrate_triggered()
 {
-    dt_userWantsToCalibrate = true; // in case triggered from the menu option
     //Must be mode 4
     //Must be DC coupled
     //Voltage must be disconnected
@@ -2990,3 +3005,72 @@ void MainWindow::on_txuart_textChanged()
         prev_text = text;
     }
 }
+class calState0 : public QState {
+public:
+    calState0(QState* parent = nullptr) : QState(parent) {}
+protected:
+    void onEntry() override {
+        if(!ui->controller_iso->driver->connected){
+            calibrationMessages = new QMessageBox();
+            calibrationMessages->setAttribute(Qt::WA_DeleteOnClose);
+            calibrationMessages->setStandardButtons(QMessageBox::Ok);
+            calibrationMessages->setText("You need to connect the board before calibrating it!");
+            calibrationMessages->exec();
+            return;
+        }
+        if(ui->controller_iso->driver->deviceMode!=4){
+            calibrationMessages = new QMessageBox();
+            calibrationMessages->setAttribute(Qt::WA_DeleteOnClose);
+            calibrationMessages->setStandardButtons(QMessageBox::Ok|QMessageBox::Cancel);
+            calibrationMessages->setText("The calibration sequence requires all devices to be turned off, except for the oscilloscope CH1 and CH2.  Is it OK for me to change your workspace?");
+            int choice = calibrationMessages->exec();
+            if(choice == QMessageBox::Ok){
+                qDebug() << "Changing workspace...";
+                ui->psuSlider->setValue(0);
+                ui->busSnifferGroup_CH1->setChecked(false);
+                ui->busSnifferGroup_CH2->setChecked(false);
+                ui->multimeterGroup->setChecked(false);
+                ui->triggerGroup->setChecked(false);
+                ui->scopeGroup_CH1->setChecked(true);
+                ui->scopeGroup_CH2->setChecked(true);
+                ui->pausedLabel_CH1->setChecked(false);
+                ui->pausedLabel_CH2->setChecked(false);
+                ui->doubleSampleLabel->setChecked(false);
+                ui->acCoupledLabel_CH1->setChecked(false);
+                ui->acCoupledLabel_CH2->setChecked(false);
+                ui->pause_LA->setChecked(false);
+                ui->multimeterPauseCheckBox->setChecked(false);
+            }
+            else{
+                return;
+            }
+        }
+
+        //Throw out old calibration data in case of bad cali
+        ui->controller_iso->ch1_ref = 1.65;
+        ui->controller_iso->ch2_ref = 1.65;
+        ui->controller_iso->frontendGain_CH1 = (R4/(R3+R4));
+        ui->controller_iso->frontendGain_CH2 = (R4/(R3+R4));
+        ui->controller_iso->internalBuffer375_CH1->m_voltage_ref = 1.65;
+        ui->controller_iso->internalBuffer750->m_voltage_ref = 1.65;
+        ui->controller_iso->internalBuffer375_CH2->m_voltage_ref = 1.65;
+        ui->controller_iso->internalBuffer375_CH1->m_frontendGain = R4/(R3+R4);
+        ui->controller_iso->internalBuffer750->m_frontendGain = R4/(R3+R4);
+        ui->controller_iso->internalBuffer375_CH2->m_frontendGain = R4/(R3+R4);
+
+        settings->setValue("CalibrateVrefCH1", 1.65);
+        settings->setValue("CalibrateVrefCH2", 1.65);
+        settings->setValue("CalibrateGainCH1", R4/(R3+R4));
+        settings->setValue("CalibrateGainCH2", R4/(R3+R4));
+
+        qDebug() << "Calibration routine beginning!";
+        calibrationMessages = new QMessageBox();
+        calibrationMessages->setAttribute(Qt::WA_DeleteOnClose);
+        calibrationMessages->setStandardButtons(QMessageBox::Ok);
+        calibrationMessages->setText("Please disconnect all wires from your Labrador board then press OK to continue.");
+        calibrationMessages->exec();
+
+        ui->controller_iso->clearBuffers(1,1,1);
+        QTimer::singleShot(1200, this, SLOT(calibrateStage2()));
+    }
+};
