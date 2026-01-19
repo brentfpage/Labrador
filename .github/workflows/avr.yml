@@ -16,28 +16,30 @@ jobs:
     - name : Checkout repository
       uses: actions/checkout@v4
      
-    - name : make variant 1
+    - name : make 01
+      working-directory: AVR_Code
       uses: brentfpage/action-avr-make@run_make_in_selected_dir_and_for_selected_target
       with:
-        dir: AVR_Code
         target: '01'
 
     - name: Upload variant 01 hex artifacts
       uses: actions/upload-artifact@v4
       with:
         name: asset-hex-01
-        path: labrafirm*01.hex
+        path: AVR_Code/labrafirm*01.hex
         compression-level: 0
         if-no-files-found: error
 
-    - uses: brentfpage/action-avr-make@run_make_in_selected_dir_and_for_selected_target
+    - name : make clean
+      working-directory: AVR_Code
+      uses: brentfpage/action-avr-make@run_make_in_selected_dir_and_for_selected_target
       with:
-        dir: AVR_Code
         target: clean
 
-    - uses: brentfpage/action-avr-make@run_make_in_selected_dir_and_for_selected_target
+    - name: make 02
+      working-directory: AVR_Code 
+      uses: brentfpage/action-avr-make@run_make_in_selected_dir_and_for_selected_target
       with:
-        dir: AVR_Code
         target: '02'
 
     - name: Upload variant 02 hex artifacts
