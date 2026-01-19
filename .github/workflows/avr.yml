@@ -16,7 +16,8 @@ jobs:
     - name : Checkout repository
       uses: actions/checkout@v4
      
-    - uses: brentfpage/action-avr-make@run_make_in_selected_dir_and_for_selected_target
+    - name : make variant 1
+      uses: brentfpage/action-avr-make@run_make_in_selected_dir_and_for_selected_target
       with:
         dir: AVR_Code
         target: '01'
