@@ -134,6 +134,7 @@ public slots:
     virtual void recoveryTick() = 0;
     virtual void shutdownProcedure() = 0;
     void checkConnection();
+    void checkConnectionStage2();
     void bootloaderJump();
     void kickstartIso();
 };

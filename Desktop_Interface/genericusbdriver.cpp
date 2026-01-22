@@ -498,10 +498,17 @@ void genericUsbDriver::checkConnection(){
 
     connectedStatus(true);
 
-
     setDeviceMode(deviceMode);
     newDig(digitalPinState);
 
+    QTimer *toStage2 = new QTimer();
+    toStage2->setSingleShot(true);
+    connect(toStage2, SIGNAL(timeout()), this, SLOT(checkConnectionStage2()));
+    toStage2->start(3000);
+
+}
+
+void genericUsbDriver::checkConnectionStage2(){
     int ret = usbIsoInit();
 	if (ret != 0)
 	{
@@ -526,6 +533,7 @@ void genericUsbDriver::checkConnection(){
         calibrateMe();
     }
 }
+
 
 void genericUsbDriver::bootloaderJump(){
     usbSendControl(0x40, 0xa7, 1, 0, 0, NULL);

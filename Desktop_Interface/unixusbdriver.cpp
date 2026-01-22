@@ -95,6 +95,7 @@ unsigned char unixUsbDriver::usbInit(unsigned long VIDin, unsigned long PIDin){
 void unixUsbDriver::usbSendControl(uint8_t RequestType, uint8_t Request, uint16_t Value, uint16_t Index, uint16_t Length, unsigned char *LDATA){
     //qDebug("Sending Control packet! 0x%x,\t0x%x,\t%u,\t%u,\t%d,\t%u", RequestType, Request, Value, Index, LDATA, Length);
     unsigned char *controlBuffer;
+    qDebug() << "usbSendControl invoked";
 
     if(!connected){
         qDebug() << "Control packet requested before device has connected!";
