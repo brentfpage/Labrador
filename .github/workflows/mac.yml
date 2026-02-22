@@ -9,7 +9,11 @@ on:
   workflow_call:
   push:
   pull_request:
-  
+
+env:
+  MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+  MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+
 jobs:
   build-dmg:
     runs-on: macos-15-intel
