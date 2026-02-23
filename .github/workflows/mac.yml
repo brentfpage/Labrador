@@ -17,12 +17,12 @@ on:
 jobs:
   retrieve_firmware_ver:
       uses: ./.github/workflows/avr_ver_def.yml
-      with:
-        AVR_VARIANT: '02'
 
       # when the build is not part of a continuous release, the avr hex from the most recent continuous release will be packaged with the mac dmg.
   fetch_firmware_url: 
       uses: ./.github/workflows/fetch_avr_url.yml
+      with:
+        AVR_VARIANT: '02'
 
   build-dmg:
     needs:
