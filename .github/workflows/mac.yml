@@ -18,9 +18,14 @@ jobs:
   retrieve_firmware_ver:
       uses: ./.github/workflows/avr_ver_def.yml
 
+      # when the build is not part of a continuous release, the avr hex from the most recent continuous release will be packaged with the mac dmg.
+  fetch_firmware_url: 
+      uses: ./.github/workflows/fetch_avr_url.yml
+
   build-dmg:
     needs:
       - retrieve_firmware_ver
+      - fetch_firmware_url #technically only when not a continuous release
     runs-on: macos-15-intel
     steps:
       - name: Checkout repository
@@ -30,26 +35,7 @@ jobs:
         if: github.event.workflow != '.github/workflows/continuous.yml' 
         run: |
           mkdir asset-hex
-          HEX_URL=$(gh api graphql -f query='query {repository ( owner : "brentfpage", name: "Labrador") {release ( tagName: "continuous" ) {releaseAssets(first:10) {nodes {downloadUrl}}}}}' | jq -r '.data.repository.release.releaseAssets.nodes[] | select(.downloadUrl| test("02.hex")) | .[]')
-          wget --directory-prefix=asset-hex $HEX_URL
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-# better alternative to the graphql query above would be to somehow retrieve the run-id of the most recent continuous.yml workflow run, then download the hex asset associated with the run-id using actions/download-artifact.
-# query description: get at most 10 assets from the most recent continuous release (assume there are fewer than 10), find the one that includes 02.hex in the download url
-# prettified (ish) query:
-# query {\
-#         repository ( owner : "espotek-org", name: "Labrador") {\
-#           release ( tagName: "continuous" ) {\
-#             releaseAssets(first:10) {\
-#               nodes {\
-#                 downloadUrl\
-#               }\
-#             }\
-#           }\
-#         }\
-#       }\
-# ' | jq -r '.data.repository.release.releaseAssets.nodes[] | select(.downloadUrl| test("02.hex")) | .[]'
+          wget --directory-prefix=asset-hex ${{ needs.fetch_firmware_url.outputs.url_avr }}
 
       - name: Download firmware from in-process continuous release
         if: github.event.workflow == '.github/workflows/continuous.yml' 
