@@ -37,6 +37,7 @@ jobs:
         if: github.event.workflow != '.github/workflows/continuous.yml' 
         run: |
           mkdir asset-hex
+          echo "mac yml HEX_URL=${{ needs.fetch_firmware_url.outputs.url_avr }}" >> "$GITHUB_STEP_SUMMARY"
           wget --directory-prefix=asset-hex ${{ needs.fetch_firmware_url.outputs.url_avr }}
 
       - name: Download firmware from in-process continuous release
