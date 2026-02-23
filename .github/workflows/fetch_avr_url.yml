@@ -1,0 +1,42 @@
+name: Determine the url of an avr hex file from the most recent continuous release
+
+on:
+  workflow_call:
+    inputs:
+      AVR_VARIANT:
+        required: true
+        type: string
+    outputs:
+      avr_url:
+        description: the url of an avr hex file from the most recent continuous release
+        value: ${{jobs.query_url.outputs.url_hex}}
+
+jobs:
+  query_url:
+    runs-on: ubuntu-latest
+    outputs:
+      url_hex: ${{ steps.run_query.outputs.HEX_URL }}
+    steps:
+    - name: submit graphql query
+      id: run_query
+      run: |
+        HEX_URL=$(gh api graphql -f query='query {repository ( owner : "brentfpage", name: "Labrador") {release ( tagName: "continuous" ) {releaseAssets(first:10) {nodes {downloadUrl}}}}}' | jq -r '.data.repository.release.releaseAssets.nodes[] | select(.downloadUrl| test("${{ inputs.AVR_VARIANT }}.hex")) | .[]')
+        echo "HEX_URL=${HEX_URL}" >> "$GITHUB_OUTPUT"
+      env:
+        GH_TOKEN: ${{ github.token }}
+
+# query description: get at most 10 assets from the most recent continuous release (assume there are fewer than 10), find the one that includes AVR_VARIANT.hex in the download url
+# prettified (ish) query:
+# query {\
+#         repository ( owner : "espotek-org", name: "Labrador") {\
+#           release ( tagName: "continuous" ) {\
+#             releaseAssets(first:10) {\
+#               nodes {\
+#                 downloadUrl\
+#               }\
+#             }\
+#           }\
+#         }\
+#       }\
+# ' | jq -r '.data.repository.release.releaseAssets.nodes[] | select(.downloadUrl| test("${{ inputs.AVR_VARIANT }}.hex")) | .[]'
+
