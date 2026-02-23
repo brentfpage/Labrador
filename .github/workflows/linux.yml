@@ -18,7 +18,7 @@ on:
       - master
       - main
       
-env:
+#env:
   # NOTE: secrets are only provided in original repo, ideal for conditional logic in forks
   # ToDo: when required, add secrets for privilidged tasks here
   
