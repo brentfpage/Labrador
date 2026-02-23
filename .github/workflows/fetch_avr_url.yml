@@ -13,14 +13,14 @@ on:
 
 jobs:
   query_url:
-    runs-on: macos-15-intel
+    runs-on: ubuntu-latest
     outputs:
       url_avr: ${{ steps.run_query.outputs.HEX_URL }}
     steps:
     - name: submit graphql query
       id: run_query
       run: |
-        HEX_URL=$(gh api graphql -f query='query {repository ( owner : "brentfpage", name: "Labrador") {release ( tagName: "continuous" ) {releaseAssets(first:10) {nodes {downloadUrl}}}}}' | jq -r '.data.repository.release.releaseAssets.nodes[] | select(.downloadUrl| test("${{ inputs.AVR_VARIANT }}.hex")) | .[]')
+        HEX_URL=$(gh api graphql -f query='query {repository ( owner : "brentfpage", name: "Labrador") {release ( tagName: "continuous" ) {releaseAssets(first:10) {nodes {downloadUrl}}}}}' | jq -r '.data.repository.release.releaseAssets.nodes[] | select(.downloadUrl| test("${{{{ inputs.AVR_VARIANT }}}}.hex")) | .[]')
         echo "HEX_URL=${HEX_URL}" >> "$GITHUB_OUTPUT"
       env:
         GH_TOKEN: ${{ github.token }}
