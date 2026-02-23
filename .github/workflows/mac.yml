@@ -27,7 +27,7 @@ jobs:
   build-dmg:
     needs:
       - retrieve_firmware_ver
-      - fetch_firmware_url #technically only when not a continuous release
+      - fetch_firmware_url # technically only needed when not a continuous release
     runs-on: macos-15-intel
     steps:
       - name: Checkout repository
@@ -37,7 +37,6 @@ jobs:
         if: github.event.workflow != '.github/workflows/continuous.yml' 
         run: |
           mkdir asset-hex
-          echo "mac yml HEX_URL=${{ needs.fetch_firmware_url.outputs.avr_url }}" >> "$GITHUB_STEP_SUMMARY"
           wget --directory-prefix=asset-hex ${{ needs.fetch_firmware_url.outputs.avr_url }}
 
       - name: Download firmware from in-process continuous release
