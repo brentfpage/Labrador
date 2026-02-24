@@ -15,40 +15,18 @@ on:
   pull_request:
   
 jobs:
-  retrieve_firmware_ver:
-      uses: ./.github/workflows/avr_ver_def.yml
-
-      # when the build is not part of a continuous release, the avr hex from the most recent continuous release will be packaged with the mac dmg.
-  fetch_firmware_url: 
-      uses: ./.github/workflows/fetch_avr_url.yml
-      with:
-        AVR_VARIANT: '02'
-
   build-dmg:
-    needs:
-      - retrieve_firmware_ver
-      - fetch_firmware_url # technically only needed when not a continuous release
     runs-on: macos-15-intel
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download firmware from most recent continuous release
-        if: github.event.workflow != '.github/workflows/continuous.yml' 
-        run: |
-          mkdir asset-hex
-          wget --directory-prefix=asset-hex ${{ needs.fetch_firmware_url.outputs.avr_url }}
-
-      - name: Download firmware from in-process continuous release
-        if: github.event.workflow == '.github/workflows/continuous.yml' 
-        uses: actions/download-artifact@v4
+      - name: Download firmware
+        id: download_firmware
+        uses: ./.github/actions/download-firmware-action
         with:
-          run-id: ${{ inputs.AVR_RUN_ID }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: move firmware to appropriate directory
-        run: |
-          mv asset-hex/*02.hex Desktop_Interface/resources/firmware
+          AVR_VARIANT: '02'
+          AVR_RUN_ID: ${{ inputs.AVR_RUN_ID }} # for grabbing the firmware from an in-process continuous release
 
       - name: Setup Homebrew dependencies
         run: |
@@ -60,19 +38,19 @@ jobs:
       - name: Build librador
         working-directory: Librador_API/___librador/librador
         run: |
-          qmake -config release EXPECTED_FIRMWARE_VERSION=${{ needs.retrieve_firmware_ver.outputs.firmware_ver }}
+          qmake -config release EXPECTED_FIRMWARE_VERSION=${{ steps.download_firmware.outputs.firmware_ver }}
           make -j$(sysctl -n hw.ncpu)
 
       - name: Build librademo
         working-directory: Librador_API/___librador/librademo
         run: |
-          qmake -config release EXPECTED_FIRMWARE_VERSION=${{ needs.retrieve_firmware_ver.outputs.firmware_ver}}
+          qmake -config release EXPECTED_FIRMWARE_VERSION=${{ steps.download_firmware.outputs.firmware_ver}}
           make -j$(sysctl -n hw.ncpu)
 
       - name: Build basicdemo
         working-directory: Librador_API/___librador/basicdemo
         run: |
-          qmake -config release EXPECTED_FIRMWARE_VERSION=${{ needs.retrieve_firmware_ver.outputs.firmware_ver}}
+          qmake -config release EXPECTED_FIRMWARE_VERSION=${{ steps.download_firmware.outputs.firmware_ver}}
           make -j$(sysctl -n hw.ncpu)
 
       - name: Import code signing certificate
@@ -104,10 +82,10 @@ jobs:
         working-directory: Desktop_Interface
         run: |
           if ( env.MACOS_CERTIFICATE != '' && env.MACOS_CERTIFICATE_PWD != '' ); then
-            qmake -config release EXPECTED_FIRMWARE_VERSION=${{ needs.retrieve_firmware_ver.outputs.firmware_ver}}
+            qmake -config release EXPECTED_FIRMWARE_VERSION=${{ steps.download_firmware.outputs.firmware_ver}}
           else
             # for debugging
-            qmake -config debug EXPECTED_FIRMWARE_VERSION=${{ needs.retrieve_firmware_ver.outputs.firmware_ver}}
+            qmake -config debug EXPECTED_FIRMWARE_VERSION=${{ steps.download_firmware.outputs.firmware_ver}}
           fi
           make -j$(sysctl -n hw.ncpu)
           macdeployqt Labrador.app -verbose=2 -libpath=build_mac/libdfuprog/lib/
