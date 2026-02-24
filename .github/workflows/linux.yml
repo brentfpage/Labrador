@@ -7,6 +7,10 @@ permissions:
 on: 
   workflow_dispatch:
   workflow_call:
+    inputs:
+      FIRMWARE_RUN_ID:
+        required: true
+        type: string
 
   push:
     branches:
@@ -37,6 +41,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Download firmware
+        id: download_firmware
+        uses: ./.github/actions/download-firmware-action
+        with:
+          FIRMWARE_VARIANT: '02'
+#          FIRMWARE_RUN_ID: ${{ inputs.FIRMWARE_RUN_ID }} # for grabbing the firmware from an in-process continuous release
+
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -46,19 +57,19 @@ jobs:
       - name: Build librador
         working-directory: Librador_API/___librador/librador
         run: |
-          qmake -config release
+          qmake -config release EXPECTED_FIRMWARE_VERSION=${{ steps.download_firmware.outputs.firmware_ver }}
           make -j$(nproc)
 
       - name: Build librademo
         working-directory: Librador_API/___librador/librademo
         run: |
-          qmake -config release
+          qmake -config release EXPECTED_FIRMWARE_VERSION=${{ steps.download_firmware.outputs.firmware_ver }}
           make -j$(nproc)
 
       - name: Build basicdemo
         working-directory: Librador_API/___librador/basicdemo
         run: |
-          qmake -config release
+          qmake -config release EXPECTED_FIRMWARE_VERSION=${{ steps.download_firmware.outputs.firmware_ver }}
           make -j$(nproc)
 
       - name: Build AppImage
@@ -88,6 +99,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Download firmware
+        id: download_firmware
+        uses: ./.github/actions/download-firmware-action
+        with:
+          FIRMWARE_VARIANT: '02'
+#          FIRMWARE_RUN_ID: ${{ inputs.FIRMWARE_RUN_ID }} # for grabbing the firmware from an in-process continuous release
+
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -97,19 +115,19 @@ jobs:
       - name: Build librador
         working-directory: Librador_API/___librador/librador
         run: |
-          qmake -config release
+          qmake -config release EXPECTED_FIRMWARE_VERSION=${{ steps.download_firmware.outputs.firmware_ver }}
           make -j$(nproc)
 
       - name: Build librademo
         working-directory: Librador_API/___librador/librademo
         run: |
-          qmake -config release
+          qmake -config release EXPECTED_FIRMWARE_VERSION=${{ steps.download_firmware.outputs.firmware_ver }}
           make -j$(nproc)
 
       - name: Build basicdemo
         working-directory: Librador_API/___librador/basicdemo
         run: |
-          qmake -config release
+          qmake -config release EXPECTED_FIRMWARE_VERSION=${{ steps.download_firmware.outputs.firmware_ver }}
           make -j$(nproc)
 
       - name: Build Debian package
