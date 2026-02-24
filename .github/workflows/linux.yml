@@ -50,7 +50,7 @@ jobs:
         uses: ./.github/actions/download-firmware-action
         with:
           FIRMWARE_VARIANT: '02'
-#          FIRMWARE_RUN_ID: ${{ inputs.FIRMWARE_RUN_ID }} # for grabbing the firmware from an in-process continuous release
+          FIRMWARE_RUN_ID: ${{ github.event.workflow == './github/workflows/continuous.yml' && inputs.FIRMWARE_RUN_ID || ''}} # for grabbing the firmware from an in-process continuous release
 
       - name: Install dependencies
         run: |
