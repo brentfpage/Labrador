@@ -1,10 +1,10 @@
 name: Define the firmware version
 
 inputs:
-  AVR_VARIANT:
+  FIRMWARE_VARIANT:
     required: true
     type: string
-  AVR_RUN_ID:
+  FIRMWARE_RUN_ID:
     required: false
     type: string
 
@@ -32,7 +32,7 @@ runs:
         GH_TOKEN: ${{ github.token }}
       shell: bash
 
-# query description: get at most 10 assets from the most recent continuous release (assume there are fewer than 10), find the one that includes AVR_VARIANT.hex in the download url
+# query description: get at most 10 assets from the most recent continuous release (assume there are fewer than 10), find the one that includes FIRMWARE_VARIANT.hex in the download url
 # prettified (ish) query:
 # query {\
 #         repository ( owner : "espotek-org", name: "Labrador") {\
@@ -45,7 +45,7 @@ runs:
 #           }\
 #         }\
 #       }\
-# ' | jq -r '.data.repository.release.releaseAssets.nodes[] | select(.downloadUrl| test("${{ inputs.AVR_VARIANT }}.hex")) | .[]'
+# ' | jq -r '.data.repository.release.releaseAssets.nodes[] | select(.downloadUrl| test("${{ inputs.FIRMWARE_VARIANT }}.hex")) | .[]'
 
     - name: Download firmware from most recent continuous release
       if: github.event.workflow != '.github/workflows/continuous.yml' 
@@ -54,17 +54,17 @@ runs:
         wget --directory-prefix=asset-hex ${{ steps.run_query.outputs.firmware_url }}
       shell: bash
 
-# when the build is part of a continuous release, the release's avr hex will be packaged with the desktop interface
+# when the build is part of a continuous release, the release's firmware hex will be packaged with the desktop interface
     - name: Download firmware from in-process continuous release
       if: github.event.workflow == '.github/workflows/continuous.yml' 
       uses: actions/download-artifact@v4
       with:
-        run-id: ${{ inputs.AVR_RUN_ID }}
+        run-id: ${{ inputs.FIRMWARE_RUN_ID }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: move firmware to appropriate directory
       run: |
-        mv asset-hex/*${{ inputs.AVR_VARIANT }}.hex Desktop_Interface/resources/firmware
+        mv asset-hex/*${{ inputs.FIRMWARE_VARIANT }}.hex Desktop_Interface/resources/firmware
       shell: bash
 
 

@@ -8,38 +8,38 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-avr:
-    uses: ./.github/workflows/avr.yml
+  build-firmware:
+    uses: ./.github/workflows/firmware.yml
     secrets: inherit
 #  build-android:
 #    uses: ./.github/workflows/android.yml
 #    secrets: inherit
 #    needs:
-#      - build-avr
+#      - build-firmware
 #   build-linux:
 #     uses: ./.github/workflows/linux.yml
 #     secrets: inherit
 #     needs:
-#       - build-avr
+#       - build-firmware
   build-mac:
     needs:
-      - build-avr
+      - build-firmware
     uses: ./.github/workflows/mac.yml
     with:
-      AVR_RUN_ID: ${{ needs.build-avr.outputs.firstword }}
+      FIRMWARE_RUN_ID: ${{ needs.build-firmware.outputs.firstword }}
     secrets: inherit
 
 #  build-windows:
 #    uses: ./.github/workflows/windows.yml
 #    secrets: inherit
 #    needs:
-#      - build-avr
+#      - build-firmware
 
   release:
     permissions:
       contents: write
     needs:
-      - build-avr
+      - build-firmware
 #      - build-android
 #      - build-linux
       - build-mac

@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   workflow_call:
     inputs:
-      AVR_RUN_ID:
+      FIRMWARE_RUN_ID:
         required: true
         type: string
   push:
@@ -37,8 +37,8 @@ jobs:
         id: download_firmware
         uses: ./.github/actions/download-firmware-action
         with:
-          AVR_VARIANT: '02'
-          AVR_RUN_ID: ${{ inputs.AVR_RUN_ID }} # for grabbing the firmware from an in-process continuous release
+          FIRMWARE_VARIANT: '02'
+          FIRMWARE_RUN_ID: ${{ inputs.FIRMWARE_RUN_ID }} # for grabbing the firmware from an in-process continuous release
 
       - name: Setup Homebrew dependencies
         run: |
