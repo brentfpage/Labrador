@@ -166,6 +166,7 @@ private:
 #endif
     bool properlyPaused();
     void updateCursors();
+    void refreshInteractiveGraph();
     short reverseFrontEnd(double voltage);
     void multimeterAction();
     void broadcastStats(bool CH2);

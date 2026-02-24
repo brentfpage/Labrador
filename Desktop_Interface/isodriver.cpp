@@ -318,12 +318,34 @@ void isoDriver::setVisible_CH2(bool visible){
     axes->graph(1)->setVisible(visible);
 }
 
+void isoDriver::refreshInteractiveGraph()
+{
+    if (!axes) {
+        return;
+    }
+
+#ifndef DISABLE_SPECTRUM
+    if (spectrum || freqResp) {
+        axes->xAxis->setRange(display->leftRange, display->rightRange);
+        axes->yAxis->setRange(display->botRange, display->topRange);
+    } else if (!eyeDiagram)
+#endif
+    {
+        axes->xAxis->setRange(-display->window - display->delay, -display->delay);
+        axes->yAxis->setRange(display->topRange, display->botRange);
+    }
+
+    updateCursors();
+    axes->replot();
+}
+
 void isoDriver::setVoltageRange(QWheelEvent* event)
 {
-    if (doNotTouchGraph && !fileModeEnabled) return;
+    if (doNotTouchGraph && !fileModeEnabled && (!driver || driver->connected)) return;
 #ifndef DISABLE_SPECTRUM
     if (freqResp || spectrum) {
         display->setRespAndSpecRanges(event, axes, this);
+        refreshInteractiveGraph();
         return;
     }
     if (eyeDiagram) return;
@@ -337,6 +359,8 @@ void isoDriver::setVoltageRange(QWheelEvent* event)
     if (!(event->modifiers() == Qt::ControlModifier))
         if (autoGainEnabled && !isProperlyPaused)
             autoGain();
+
+    refreshInteractiveGraph();
 }
 
 DisplayControl::DisplayControl(double left, double right, double top, double bottom)
@@ -582,6 +606,7 @@ void isoDriver::graphMousePress(QMouseEvent *event){
         display->x0 = axes->xAxis->pixelToCoord(event->x());
     }
     qDebug() << "x0 =" << display->x0 << "x1 =" << display->x1 << "y0 =" << display->y0 << "y1 =" << display->y1;
+    refreshInteractiveGraph();
 }
 
 void isoDriver::graphMouseRelease(QMouseEvent *event){
@@ -595,6 +620,7 @@ void isoDriver::graphMouseRelease(QMouseEvent *event){
         placingVertAxes = false;
     }
     qDebug() << "x0 =" << display->x0 << "x1 =" << display->x1 << "y0 =" << display->y0 << "y1 =" << display->y1;
+    refreshInteractiveGraph();
 }
 
 void isoDriver::graphMouseMove(QMouseEvent *event){
@@ -607,6 +633,7 @@ void isoDriver::graphMouseMove(QMouseEvent *event){
 #endif
         display->x1 = axes->xAxis->pixelToCoord(event->x());
     }
+    refreshInteractiveGraph();
 }
 
 void isoDriver::cursorEnableHori(bool enabled){
@@ -622,6 +649,7 @@ void isoDriver::cursorEnableHori(bool enabled){
         horiCursorEnabled0 = enabled;
     axes->graph(4)->setVisible(enabled);
     axes->graph(5)->setVisible(enabled);
+    refreshInteractiveGraph();
 }
 
 void isoDriver::cursorEnableVert(bool enabled){
@@ -637,6 +665,7 @@ void isoDriver::cursorEnableVert(bool enabled){
         vertCursorEnabled0 = enabled;
     axes->graph(2)->setVisible(enabled);
     axes->graph(3)->setVisible(enabled);
+    refreshInteractiveGraph();
 }
 
 void isoDriver::updateCursors(){
@@ -1747,6 +1776,7 @@ void isoDriver::setTopRange(double newTop)
     // NOTE: Should this be clamped to 20?
     display->topRange = newTop;
     topRangeUpdated(display->topRange);
+    refreshInteractiveGraph();
 }
 
 void isoDriver::setBotRange(double newBot)
@@ -1754,16 +1784,19 @@ void isoDriver::setBotRange(double newBot)
     // NOTE: Should this be clamped to 20?
     display->botRange = newBot;
     botRangeUpdated(display->botRange);
+    refreshInteractiveGraph();
 }
 
 void isoDriver::setTimeWindow(double newWindow){
     display->window = newWindow;
     timeWindowUpdated(display->window);
+    refreshInteractiveGraph();
 }
 
 void isoDriver::setDelay(double newDelay){
     display->delay = newDelay;
     delayUpdated(display->delay);
+    refreshInteractiveGraph();
 }
 
 void isoDriver::takeSnapshot(QString *fileName, unsigned char channel){
