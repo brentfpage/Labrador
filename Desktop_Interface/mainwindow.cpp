@@ -13,6 +13,7 @@
 #endif
 
 #include <algorithm>
+#include <QStandardPaths>
 
 #define DO_QUOTE(X) #X
 #define QUOTE(X) DO_QUOTE(X)
@@ -1481,14 +1482,22 @@ void MainWindow::on_actionEnter_Manually_triggered()
     dialog.exec();
 }
 
+#ifdef PLATFORM_WINDOWS
+#define MAKE_SETTINGS QSettings settings( \
+    QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/labrador.ini", \
+    QSettings::IniFormat)
+#else
+#define MAKE_SETTINGS QSettings settings
+#endif
+
 void MainWindow::writeSettings(const QString &key, const QVariant &value){
-    QSettings settings;
+    MAKE_SETTINGS;
     settings.setValue(key, value);
 }
 
 #define QSETTINGS_DEFAULT_RETURN 42069
 void MainWindow::readSettingsFile(){
-    QSettings settings;
+    MAKE_SETTINGS;
     int connectionType = settings.value("ConnectionType", QSETTINGS_DEFAULT_RETURN).toInt();
     double calibrate_vref_ch1 = settings.value("CalibrateVrefCH1", 1.65).toDouble();
     double calibrate_vref_ch2 = settings.value("CalibrateVrefCH2", 1.65).toDouble();
