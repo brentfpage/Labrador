@@ -469,32 +469,20 @@ void DisplayControl::setVoltageRange (QWheelEvent* event, bool isProperlyPaused,
             qDebug() << scale * offset;
             qDebug() << scale * (1.0 - offset) * offset;
         }
-        window -= scale * offset;
-        delay += scale * (1.0 - offset) * offset;
 
-        // NOTE: delayUpdated and timeWindowUpdated are called more than once beyond here,
-        // maybe they should only be called once at the end?
+        double lower = delay;
+        double upper = delay + window;
+        lower += scale * (1.0 - offset);
+        upper -= scale * offset;
+        if(lower < 0)
+            lower = 0;
+        if(upper > MAX_WINDOW_SIZE)
+            upper = MAX_WINDOW_SIZE;
+        window = upper - lower;
+        delay = lower;
 
         delayUpdated(delay);
         timeWindowUpdated(window);
-
-        qDebug() << window << delay;
-
-        if (window > maxWindowSize)
-        {
-            window = maxWindowSize;
-            timeWindowUpdated(window);
-        }
-        if ((window + delay) > maxWindowSize)
-        {
-            delay = maxWindowSize - window;
-            delayUpdated(delay);
-        }
-        if (delay < 0)
-        {
-            delay = 0;
-            delayUpdated(delay);
-        }
     }
 }
 
