@@ -248,9 +248,6 @@ static UDD_EP_t *udd_ep_get_ctrl(udd_ep_id_t ep);
  */
 //@{
 
-//! Global variable to give and record information about setup request management
-udd_ctrl_request_t udd_g_ctrlreq;
-
 //! Bit definitions about endpoint control state machine for udd_ep_control_state
 typedef enum {
 	UDD_EPCTRL_SETUP = 0,     //!< Wait a SETUP packet
