@@ -8,6 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
+  build-firmware:
+    uses: ./.github/workflows/firmware.yml
   build-android:
     uses: ./.github/workflows/android.yml
     secrets: inherit
@@ -25,6 +27,7 @@ jobs:
     permissions:
       contents: write
     needs:
+      - build-firmware
       - build-android
       - build-linux
       - build-mac
@@ -76,6 +79,12 @@ jobs:
             ## Windows
 
             Download `Labrador-<version>-installer.exe` for Windows 7 or later (32-bit and 64-bit supported).
+
+            ## Firmware
+
+            Download `labrafirm-<version>-<variant>.hex`
+
+            - Only rarely will firmware files be useful for a typical user.  For details on uploading firmware to the Labrador board, see the wiki.
         run: |
           UPLOADTOOL_BODY="$(echo "$UPLOADTOOL_BODY" | jq -Rsa '.')"
           UPLOADTOOL_BODY="${UPLOADTOOL_BODY%\"}"
