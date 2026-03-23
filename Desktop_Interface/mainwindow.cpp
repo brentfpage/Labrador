@@ -165,6 +165,10 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(ui->debugButton1, SIGNAL(clicked()), ui->controller_iso->driver, SLOT(avrDebug()));
         connect(ui->psuSlider, SIGNAL(voltageChanged(double)), ui->controller_iso->driver, SLOT(setPsu(double)));
         connect(ui->controller_iso, SIGNAL(setGain(double)), ui->controller_iso->driver, SLOT(setGain(double)));
+        connect(ui->controller_iso, &isoDriver::setGain, this, [this](){
+            // Force a trigger refresh when gain changes (issue #233)
+            ui->controller_iso->setTriggerLevel(ui->triggerLevelValue->value());
+        });
         connect(ui->controller_fg, &functionGenControl::functionGenToUpdate, ui->controller_iso->driver, &genericUsbDriver::setFunctionGen);
         connect(ui->bufferDisplay, SIGNAL(modeChange(int)), ui->controller_iso->driver, SLOT(setDeviceMode(int)));
 		connect(ui->bufferDisplay, &bufferControl::modeChange, this, [this](){
@@ -1650,6 +1654,10 @@ void MainWindow::reinitUsbStage2(void){
     connect(ui->debugButton3, SIGNAL(clicked()), ui->controller_iso->driver, SLOT(bootloaderJump()));
     connect(ui->psuSlider, SIGNAL(voltageChanged(double)), ui->controller_iso->driver, SLOT(setPsu(double)));
     connect(ui->controller_iso, SIGNAL(setGain(double)), ui->controller_iso->driver, SLOT(setGain(double)));
+    connect(ui->controller_iso, &isoDriver::setGain, this, [this](){
+        // Force a trigger refresh when gain changes (issue #233)
+        ui->controller_iso->setTriggerLevel(ui->triggerLevelValue->value());
+    });
     connect(ui->controller_fg, &functionGenControl::functionGenToUpdate, ui->controller_iso->driver, &genericUsbDriver::setFunctionGen);
     connect(ui->bufferDisplay, SIGNAL(modeChange(int)), ui->controller_iso->driver, SLOT(setDeviceMode(int)));
 	connect(ui->bufferDisplay, &bufferControl::modeChange, this, [this](){
