@@ -11,10 +11,6 @@ on:
         description: 000N
         value: ${{ jobs.build-hex.outputs.version }}
   workflow_dispatch:
-    outputs:
-      firmware_version_id:
-        description: 000N
-        value: ${{ jobs.build-hex.outputs.version }}
 
   push:
 
