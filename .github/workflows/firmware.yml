@@ -9,27 +9,19 @@ on:
     outputs:
       version:
         description: 000N
-        value: ${{ jobs.build-hex.outputs.version }}
+        value: ${{ env.VERSION }}
   workflow_dispatch:
 
   push:
 
+env:
+  VERSION: "0007"
+
 jobs:
   build-hex:
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.define_version.outputs.firmware_version }}
       
     steps:
-      - name: define version
-        id: define_version
-        env:
-          XVERSION: "0x0007"
-        run: | 
-          echo "firmware_version=${XVERSION}" >> $GITHUB_OUTPUT
-          echo "VERSION=${XVERSION:2:4}" >> $GITHUB_ENV
-        shell: bash
-
       - name : Checkout repository
         uses: actions/checkout@v4
        
