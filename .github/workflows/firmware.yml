@@ -32,7 +32,7 @@ jobs:
         run: | 
           echo "firmware_version=${VERSION}" >> $GITHUB_OUTPUT
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
-      shell: bash
+        shell: bash
 
       - name : Checkout repository
         uses: actions/checkout@v4
