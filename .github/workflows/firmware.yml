@@ -9,7 +9,7 @@ on:
     outputs:
       version:
         description: 000N
-        value: ${{ github.env.VERSION }}
+        value: ${{ steps.export_version.outputs.VERSION }}
   workflow_dispatch:
 
   push:
@@ -23,8 +23,12 @@ jobs:
       
     steps:
       - name: export version
-        run: echo "VERSION=${VERSION}" >> $GITHUB_ENV
+        id: export_version
+        run: | 
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
         shell: bash
+
+      - name : export version
 
       - name : Checkout repository
         uses: actions/checkout@v4
