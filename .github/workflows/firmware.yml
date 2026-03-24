@@ -24,11 +24,8 @@ jobs:
     steps:
       - name: export version
         id: export_version
-        run: | 
-          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+        run: echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
         shell: bash
-
-      - name : export version
 
       - name : Checkout repository
         uses: actions/checkout@v4
