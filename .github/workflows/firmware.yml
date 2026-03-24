@@ -23,10 +23,8 @@ jobs:
       
     steps:
       - name: export version
-        run: | 
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+        run: echo "VERSION=${VERSION}" >> $GITHUB_ENV
         shell: bash
-      - name : export version
 
       - name : Checkout repository
         uses: actions/checkout@v4
