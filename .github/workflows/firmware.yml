@@ -6,14 +6,34 @@ permissions:
   
 on:
   workflow_call:
+    outputs:
+      firmware_version_id:
+        description: 000N
+        value: ${{ jobs.build-hex.outputs.version }}
   workflow_dispatch:
+    outputs:
+      firmware_version_id:
+        description: 000N
+        value: ${{ jobs.build-hex.outputs.version }}
 
   push:
 
 jobs:
   build-hex:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.define_version.outputs.firmware_version }}
+      
     steps:
+      - name: define version
+        id: define_version
+        env:
+          VERSION: 0007
+        run: | 
+          echo "firmware_version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+      shell: bash
+
       - name : Checkout repository
         uses: actions/checkout@v4
        

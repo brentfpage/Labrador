@@ -24,13 +24,28 @@ env:
   MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
 
 jobs:
+  build-firmware:
+    uses: ./.github/workflows/firmware.yml
+
   build-dmg:
     runs-on: macos-15-intel
+    needs:
+      - build-firmware
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: asset-hex
+
+      - name: move firmware to appropriate directory
+        run: |
+          mv asset-hex/*02.hex Desktop_Interface/resources/firmware
+        shell: bash
 
       - name: Setup Homebrew dependencies
         run: |
@@ -88,10 +103,12 @@ jobs:
         working-directory: Desktop_Interface
         run: |
           if ( env.MACOS_CERTIFICATE != '' && env.MACOS_CERTIFICATE_PWD != '' ); then
-            qmake -config release
+            qmake -config release EXPECTED_FIRMWARE_VERSION=${{ needs.build-firmware.outputs.version }}
+
           else
             # for debugging
-            qmake -config debug  
+            qmake -config debug EXPECTED_FIRMWARE_VERSION=${{ steps.define_firmware_version.outputs.firmware_ver }}
+
           fi
           make -j$(sysctl -n hw.ncpu)
           macdeployqt Labrador.app -verbose=2 -libpath=build_mac/libdfuprog/lib/
