@@ -42,7 +42,7 @@ jobs:
         with:
           pattern: asset-hex
 
-      - name: move firmware to appropriate directory
+      - name: Move firmware to appropriate directory
         run: |
           mv asset-hex/*02.hex Desktop_Interface/resources/firmware
         shell: bash
@@ -103,11 +103,11 @@ jobs:
         working-directory: Desktop_Interface
         run: |
           if ( env.MACOS_CERTIFICATE != '' && env.MACOS_CERTIFICATE_PWD != '' ); then
-            qmake -config release EXPECTED_FIRMWARE_VERSION=${{ needs.build-firmware.outputs.version }}
+            qmake -config release EXPECTED_FIRMWARE_VERSION=0x${{ needs.build-firmware.outputs.version }}
 
           else
             # for debugging
-            qmake -config debug EXPECTED_FIRMWARE_VERSION=${{ steps.define_firmware_version.outputs.firmware_ver }}
+            qmake -config debug EXPECTED_FIRMWARE_VERSION=0x${{ steps.define_firmware_version.outputs.version }}
 
           fi
           make -j$(sysctl -n hw.ncpu)
