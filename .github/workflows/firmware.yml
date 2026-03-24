@@ -9,7 +9,7 @@ on:
     outputs:
       version:
         description: 000N
-        value: ${{ env.VERSION }}
+        value: ${{ github.env.VERSION }}
   workflow_dispatch:
 
   push:
