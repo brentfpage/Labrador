@@ -103,11 +103,11 @@ jobs:
         working-directory: Desktop_Interface
         run: |
           if ( env.MACOS_CERTIFICATE != '' && env.MACOS_CERTIFICATE_PWD != '' ); then
-            qmake -config release EXPECTED_FIRMWARE_VERSION=0x${{ needs.build-firmware.outputs.version }}
+            qmake -config release EXPECTED_FIRMWARE_VERSION=${{ needs.build-firmware.outputs.version }}
 
           else
             # for debugging
-            qmake -config debug EXPECTED_FIRMWARE_VERSION=0x${{ steps.define_firmware_version.outputs.version }}
+            qmake -config debug EXPECTED_FIRMWARE_VERSION=${{ needs.build-firmware.outputs.version }}
 
           fi
           make -j$(sysctl -n hw.ncpu)

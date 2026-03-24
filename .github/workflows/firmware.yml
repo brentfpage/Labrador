@@ -26,7 +26,7 @@ jobs:
         env:
           VERSION: 0007
         run: | 
-          echo "firmware_version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "firmware_version=0x${VERSION}" >> $GITHUB_OUTPUT
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
         shell: bash
 
