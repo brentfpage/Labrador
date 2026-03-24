@@ -7,7 +7,7 @@ permissions:
 on:
   workflow_call:
     outputs:
-      firmware_version_id:
+      version:
         description: 000N
         value: ${{ jobs.build-hex.outputs.version }}
   workflow_dispatch:
