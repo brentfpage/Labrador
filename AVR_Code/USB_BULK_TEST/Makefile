@@ -33,6 +33,7 @@ SIZE    = $(CROSS_COMPILE)size
 DEFINES = \
 -DNDEBUG \
 -DBOARD=USER_BOARD
+-DFIRMWARE_VERSION_ID=0x$(VERSION)
 
 INCLUDES = \
 -Icommon/services/usb/class/vendor/device/example/atxmega256a3bu_xmega_a3bu_xplained \
