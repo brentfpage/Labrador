@@ -7,8 +7,9 @@ permissions:
 on:
   workflow_call:
     outputs:
-      version: ${{ jobs.build-hex.outputs.version }}
-
+      version:
+        description: 000N
+        value: ${{ jobs.build-hex.outputs.version }}
   workflow_dispatch:
 
   push:
