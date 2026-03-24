@@ -24,7 +24,7 @@ jobs:
       - name: define version
         id: define_version
         env:
-          XVERSION: 0x0007
+          XVERSION: "0x0007"
         run: | 
           echo "firmware_version=${XVERSION}" >> $GITHUB_OUTPUT
           echo "VERSION=${XVERSION:2:4}" >> $GITHUB_ENV
