@@ -5,13 +5,11 @@ permissions:
   pull-requests: write
 
 on:
-  workflow_call:
-    outputs:
-      version:
-        description: 000N
-        value: ${{ jobs.build-hex.outputs.version }}
-
   workflow_dispatch:
+    inputs:
+      VARIANT:
+        type: string
+        required: false
 
   push:
     branches:
@@ -23,38 +21,30 @@ on:
       - master
       - main
 
-env:
-  VERSION: "0007"
-  
 jobs:
   build-hex:
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.export_version.outputs.version }}
-
-    steps:
-      - name: export version
-        id: export_version
-        run: echo "version=${VERSION}" >> $GITHUB_OUTPUT
-        shell: bash
 
     steps:
       - name : Checkout repository
         uses: actions/checkout@v4
        
       - name : make 01
+        if: ((inputs.variant == '') || (inputs.variant == '01'))
         uses: bazhenov/action-avr-make@v1.1
         with:
           dir: AVR_Code/USB_BULK_TEST
           target: '01'
 
       - name : make mostlclean
+        if: inputs.variant == ''
         uses: bazhenov/action-avr-make@v1.1
         with:
           dir: AVR_Code/USB_BULK_TEST
           target: mostlyclean
 
       - name : make 02
+        if: ((inputs.variant == '') || (inputs.variant == '02'))
         uses: bazhenov/action-avr-make@v1.1
         with:
           dir: AVR_Code/USB_BULK_TEST
