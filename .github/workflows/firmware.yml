@@ -12,8 +12,14 @@ on:
         required: false
 
   push:
+    branches:
+      - master
+      - main
 
   pull_request:
+    branches:
+      - master
+      - main
 
 jobs:
   build-hex:
@@ -24,21 +30,21 @@ jobs:
         uses: actions/checkout@v4
        
       - name : make 01
-        if: ((inputs.variant == '') || (inputs.variant == '01'))
+        if: ((github.event_name == 'push') || (github.event_name == 'pull_request') || ((github.event_name == 'workflow_dispatch') && ((inputs.variant == '') || (inputs.variant == '01'))))
         uses: bazhenov/action-avr-make@v1.1
         with:
           dir: AVR_Code/USB_BULK_TEST
           target: '01'
 
-      - name : make mostlclean
-        if: inputs.variant == ''
+      - name : make mostlyclean
+        if: ((github.event_name == 'push') || (github.event_name == 'pull_request') || ((github.event_name == 'workflow_dispatch') && (inputs.variant == '')))
         uses: bazhenov/action-avr-make@v1.1
         with:
           dir: AVR_Code/USB_BULK_TEST
           target: mostlyclean
 
       - name : make 02
-        if: ((inputs.variant == '') || (inputs.variant == '02'))
+        if: ((github.event_name == 'push') || (github.event_name == 'pull_request') || ((github.event_name == 'workflow_dispatch') && ((inputs.variant == '') || (inputs.variant == '02'))))
         uses: bazhenov/action-avr-make@v1.1
         with:
           dir: AVR_Code/USB_BULK_TEST
