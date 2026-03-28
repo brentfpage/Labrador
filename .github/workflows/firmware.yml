@@ -10,6 +10,11 @@ on:
       variant:
         type: string
         required: false
+  workflow_call:
+    inputs:
+      variant:
+        type: string
+        required: false
 
   push:
 
