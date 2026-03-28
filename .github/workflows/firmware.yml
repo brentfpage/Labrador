@@ -9,9 +9,13 @@ on:
     inputs:
       variant:
         type: string
+        description: 'options: 01, 02, or leave the field blank to build both variant 01 and 02'
         required: false
 
   push:
+    branches:
+      - master
+      - main
 
   pull_request:
     branches:
