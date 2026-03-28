@@ -7,7 +7,7 @@ permissions:
 on:
   workflow_dispatch:
     inputs:
-      VARIANT:
+      variant:
         type: string
         required: false
 
