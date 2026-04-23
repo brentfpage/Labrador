@@ -131,7 +131,7 @@
 #define UDI_VENDOR_EPS_SIZE_ISO_FS   0
 #else
 	#ifdef SINGLE_ENDPOINT_INTERFACE
-			#define UDI_VENDOR_EPS_SIZE_ISO_FS   1023
+			#define UDI_VENDOR_EPS_SIZE_ISO_FS   800
 	#else
 		#define UDI_VENDOR_EPS_SIZE_ISO_FS   128
 	#endif
